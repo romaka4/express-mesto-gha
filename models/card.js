@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
+
 const cardSchema = new mongoose.Schema({
   name: {
-    type: String, 
+    type: String,
     required: true,
-    minlength: 2, 
+    minlength: 2,
     maxlength: 30,
   },
   link: {
-    type: String, 
+    type: String,
     required: true,
   },
   owner: {
@@ -24,5 +25,5 @@ const cardSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-})
+});
 module.exports = mongoose.model('card', cardSchema);
