@@ -19,17 +19,19 @@ module.exports.createCard = (req, res) => {
 };
 module.exports.deleteCardById = (req, res) => {
   if (req.params.cardId.length === 24) {
-  Card.findByIdAndDelete(req.params.cardId)
-    .then((card) => {
-      if (!card) {
-        res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
+    Card.findByIdAndDelete(req.params.cardId)
+      .then((card) => {
+        if (!card) {
+          res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
           return;
-      }
-      res.send({ message: 'Вы удалили карточку' });
-    })
-    .catch(() => {
-      res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
-    });
+        }
+        res.send({ message: 'Вы удалили карточку' });
+      })
+      .catch(() => {
+        res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+      });
+  } else {
+    res.status(400).send({ message: 'Переданы некорректные данные для удаления карточки' });
   }
 };
 
@@ -40,13 +42,13 @@ module.exports.likeCard = (req, res) => {
       { $addToSet: { likes: req.user._id } },
       { new: true },
     )
-    .then((card) => {
-      if (!card) {
-        res.status(404).send({ message: 'Передан несуществующий _id карточки' });
-        return;
-      }
-      res.send(card);
-    })
+      .then((card) => {
+        if (!card) {
+          res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+          return;
+        }
+        res.send(card);
+      })
       .catch(() => {
         res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       });
@@ -61,13 +63,13 @@ module.exports.dislikeCard = (req, res) => {
       { $pull: { likes: req.user._id } },
       { new: true },
     )
-    .then((card) => {
-      if (!card) {
-        res.status(404).send({ message: 'Передан несуществующий _id карточки' });
-        return;
-      }
-      res.send(card);
-    })
+      .then((card) => {
+        if (!card) {
+          res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+          return;
+        }
+        res.send(card);
+      })
       .catch(() => {
         res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       });
