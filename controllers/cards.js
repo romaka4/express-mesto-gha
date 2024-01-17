@@ -18,13 +18,19 @@ module.exports.createCard = (req, res) => {
     });
 };
 module.exports.deleteCardById = (req, res) => {
+  if (req.params.cardId.length === 24) {
   Card.findByIdAndDelete(req.params.cardId)
-    .then(() => {
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
+          return;
+      }
       res.send({ message: 'Вы удалили карточку' });
     })
     .catch(() => {
       res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
     });
+  }
 };
 
 module.exports.likeCard = (req, res) => {
