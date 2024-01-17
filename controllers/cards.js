@@ -34,7 +34,13 @@ module.exports.likeCard = (req, res) => {
       { $addToSet: { likes: req.user._id } },
       { new: true },
     )
-      .then((card) => res.send(card))
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+        return;
+      }
+      res.send(card);
+    })
       .catch(() => {
         res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       });
@@ -49,7 +55,13 @@ module.exports.dislikeCard = (req, res) => {
       { $pull: { likes: req.user._id } },
       { new: true },
     )
-      .then((card) => res.send(card))
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+        return;
+      }
+      res.send(card);
+    })
       .catch(() => {
         res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       });
