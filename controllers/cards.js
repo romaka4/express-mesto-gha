@@ -36,10 +36,10 @@ module.exports.likeCard = (req, res) => {
     )
       .then((card) => res.send(card))
       .catch(() => {
-        res.status(400).send({ message: 'Переданы некорректные данные для постановки' });
+        res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       });
   } else {
-    res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+    res.status(400).send({ message: 'Переданы некорректные данные для постановки' });
   }
 };
 module.exports.dislikeCard = (req, res) => {
@@ -51,9 +51,9 @@ module.exports.dislikeCard = (req, res) => {
     )
       .then((card) => res.send(card))
       .catch(() => {
-        res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' });
+        res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       });
   } else {
-    res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+    res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' });
   }
 };
