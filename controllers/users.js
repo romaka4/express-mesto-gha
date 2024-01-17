@@ -6,7 +6,7 @@ module.exports.getUsers = (req, res) => {
     .catch(() => res.status(500).send({ message: 'Произошла ошибка на стороне сервера' }));
 };
 module.exports.getUserById = (req, res) => {
-  if (req.params.userId) {
+  if (req.params.userId.length === 24) {
     User.findById(req.params.userId)
       .then((user) => res.send({ user }))
       .catch(() => res.status(500).send({ message: 'Произошла ошибка на стороне сервера' }));
