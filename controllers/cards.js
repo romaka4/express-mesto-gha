@@ -9,7 +9,7 @@ module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
-    .then((card) => res.send(card))
+    .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
@@ -20,15 +20,16 @@ module.exports.createCard = (req, res) => {
 module.exports.deleteCardById = (req, res) => {
   if (req.params.cardId.length === 24) {
     Card.findByIdAndDelete(req.params.cardId)
-      .then((card) => {
-        if (!card) {
-          res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
-          return;
-        }
+    .orFail(new Error('NotValidId'))
+      .then(() => {
         res.send({ message: 'Вы удалили карточку' });
       })
-      .catch(() => {
-        res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+      .catch((err) => {
+        if (err.message === 'NotValidId') {
+          res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
+        } else {
+        res.status(500).send({ message: 'Ошибка на стороне сервера' });
+        }
       });
   } else {
     res.status(400).send({ message: 'Переданы некорректные данные для удаления карточки' });
@@ -42,18 +43,19 @@ module.exports.likeCard = (req, res) => {
       { $addToSet: { likes: req.user._id } },
       { new: true },
     )
+    .orFail(new Error('NotValidId'))
       .then((card) => {
-        if (!card) {
-          res.status(404).send({ message: 'Передан несуществующий _id карточки' });
-          return;
-        }
         res.send(card);
       })
-      .catch(() => {
-        res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+      .catch((err) => {
+        if (err.message === 'NotValidId') {
+          res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+        } else {
+          res.status(500).send({ message: 'Ошибка на стороне сервера' });
+        }
       });
   } else {
-    res.status(400).send({ message: 'Переданы некорректные данные для постановки' });
+    res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
   }
 };
 module.exports.dislikeCard = (req, res) => {
@@ -63,17 +65,18 @@ module.exports.dislikeCard = (req, res) => {
       { $pull: { likes: req.user._id } },
       { new: true },
     )
-      .then((card) => {
-        if (!card) {
-          res.status(404).send({ message: 'Передан несуществующий _id карточки' });
-          return;
-        }
-        res.send(card);
-      })
-      .catch(() => {
+    .orFail(new Error('NotValidId'))
+    .then((card) => {
+      res.send(card);
+    })
+    .catch((err) => {
+      if (err.message === 'NotValidId') {
         res.status(404).send({ message: 'Передан несуществующий _id карточки' });
-      });
-  } else {
-    res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' });
-  }
+      } else {
+        res.status(500).send({ message: 'Ошибка на стороне сервера' });
+      }
+    });
+} else {
+  res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
+}
 };
