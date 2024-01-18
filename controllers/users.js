@@ -8,7 +8,7 @@ module.exports.getUsers = (req, res) => {
 module.exports.getUserById = (req, res) => {
   if (req.params.userId.length === 24) {
     User.findById(req.params.userId)
-    .orFail(new Error('NotValidId'))
+      .orFail(new Error('NotValidId'))
       .then((user) => {
         res.send(user);
       })
@@ -39,18 +39,18 @@ module.exports.updateUser = (req, res) => {
   if (req.user._id) {
     const { name, about } = req.body;
     User.findByIdAndUpdate(req.user._id, { name, about }, { new: 'true', runValidators: true })
-    .orFail(new Error('NotValidId'))
+      .orFail(new Error('NotValidId'))
       .then((user) => res.send(user))
       .catch((err) => {
         if (err.massage === 'NotValidId') {
           res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
         } else {
-          res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' })
+          res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+        }
+      });
+  } else {
+    res.status(500).send({ message: 'Произошла ошибка на стороне сервера' });
   }
-})
-} else {
-  res.status(500).send({ message: 'Произошла ошибка на стороне сервера' });
-}
 };
 module.exports.updateAvatar = (req, res) => {
   const avatar = req.body;
