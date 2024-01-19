@@ -15,6 +15,12 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
+    validate: {
+      validator(v) {
+        return /^https?:\/\//.test(v);
+      },
+      message: 'Некорректный URL',
+    },
     required: true,
   },
 });
