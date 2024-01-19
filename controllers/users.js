@@ -6,7 +6,6 @@ module.exports.getUsers = (req, res) => {
     .catch(() => res.status(500).send({ message: 'Произошла ошибка на стороне сервера' }));
 };
 module.exports.getUserById = (req, res) => {
-  if (req.params.userId.length === 24) {
     User.findById(req.params.userId)
       .orFail(new Error('NotValidId'))
       .then((user) => {
@@ -15,13 +14,12 @@ module.exports.getUserById = (req, res) => {
       .catch((err) => {
         if (err.message === 'NotValidId') {
           res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
+        } else if (err.name === 'CastError') {
+          res.status(400).send({ message: 'Переданы некорректные данные' });
         } else {
           res.status(500).send({ message: 'Произошла ошибка на стороне сервера' });
         }
       });
-  } else {
-    res.status(400).send({ message: 'Переданы некорректные данные' });
-  }
 };
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
