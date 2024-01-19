@@ -42,10 +42,12 @@ module.exports.updateUser = (req, res) => {
       .orFail(new Error('NotValidId'))
       .then((user) => res.send(user))
       .catch((err) => {
-        if (err.massage === 'NotValidId') {
+        if (err.message === 'NotValidId') {
           res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
-        } else {
+        } else if (err.name === 'ValidationError') {
           res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+        } else {
+          res.status(500).send({ message: 'Произошла ошибка на стороне сервера' });
         }
       });
   } else {
