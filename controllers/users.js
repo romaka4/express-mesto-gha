@@ -1,10 +1,21 @@
 const User = require('../models/user');
-
+const bcrypt = require('bcryptjs');
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
     .catch(() => res.status(500).send({ message: 'Произошла ошибка на стороне сервера' }));
 };
+module.exports.getMe = (req, res) => {
+  User.findOne(req.user)
+  .orFail(new Error('NotValidId'))
+    .then((user) => {
+      res.send(user);
+    })
+    .catch(() => {
+      res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
+    });
+}
+
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .orFail(new Error('NotValidId'))
@@ -22,9 +33,16 @@ module.exports.getUserById = (req, res) => {
     });
 };
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.status(201).send({ data: user }))
+  const { name, about, avatar, email, password, } = req.body;
+  bcrypt.hash(req.body.password, 10)
+  .then(hash => User.create({ name, about, avatar, email, password: hash, }))
+    .then((user) => res.status(201).send({ 
+      _id: user._id,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
