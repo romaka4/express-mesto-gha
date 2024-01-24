@@ -10,7 +10,8 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getMe = (req, res, next) => {
-  User.findOne(req.user)
+  console.log(req.user._id);
+  User.findById(req.user._id)
     .orFail(() => {
       throw new NotFoundError('Пользователь по указанному _id не найден');
     })
