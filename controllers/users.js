@@ -21,25 +21,7 @@ module.exports.getMe = (req, res, next) => {
     .catch(next);
 };
 
-// module.exports.getUserById = (req, res) => {
-//   console.log('oi');
-//   User.findById(req.params.userId)
-//     .orFail(new Error('NotValidId'))
-//     .then((user) => {
-//       res.send(user);
-//     })
-//     .catch((err) => {
-//       if (err.message === 'NotValidId') {
-//         res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
-//       } else if (err.name === 'CastError') {
-//         res.status(400).send({ message: 'Переданы некорректные данные' });
-//       } else {
-//         res.status(500).send({ message: 'Произошла ошибка на стороне сервера' });
-//       }
-//     });
-// };
 module.exports.getUserById = (req, res, next) => {
-  console.log('oi');
   User.findById(req.params.userId)
     .orFail(() => {
       throw new NotFoundError('Пользователь по указанному _id не найден');
@@ -101,34 +83,7 @@ module.exports.updateAvatar = (req, res) => {
       }
     });
 };
-// module.exports.login = (req, res) => {
-//   console.log('1');
-//   const { email, password } = req.body;
-//   User.findOne({ email }).select('+password')
-//     .then((user) => {
-//       if (!user) {
-//         console.log('Неправильные почта или пароль');
-//       }
-//       return bcrypt.compare(password, user.password);
-//     })
-//     .then((matched) => {
-//       console.log('4');
-//       if (!matched) {
-//         console.log('Неправильные почта или пароль');
-//       }
-//       const token = jwt.sign({ _id: user._id }, 'super-strong-secret');
-//       console.log('6');
-//       res.status(200).send({ token });
-//       console.log('7');
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       console.log('mes: ' + err.message);
-//       res
-//         .status(401)
-//         .send({ message: err.message });
-//     });
-// }
+
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
