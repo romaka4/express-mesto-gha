@@ -3,7 +3,7 @@ const ValidationError = require('../errors/validation-error');
 module.exports = ((err, req, res, next) => {
   console.log(err);
   if (err.name === 'NotFoundError') {
-    res.status(err.statusCode).send({ messaege: err.message });
+    res.status(err.statusCode).send({ message: err.message });
     return;
   }
   if (err.name === 'ValidationError' || err.name === 'CastError') {
