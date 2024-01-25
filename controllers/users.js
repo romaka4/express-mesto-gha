@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
+const ConflictError = require('../errors/conflict-error');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -10,7 +11,6 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getMe = (req, res, next) => {
-  console.log(req.user._id);
   User.findById(req.user._id)
     .orFail(() => {
       throw new NotFoundError('Пользователь по указанному _id не найден');
@@ -31,17 +31,13 @@ module.exports.getUserById = (req, res, next) => {
     })
     .catch(next);
 };
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
-    name, about, avatar, email, password,
+    name, about, avatar, email,
   } = req.body;
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,// записываем хеш в базу
+      name, about, avatar, email, password: hash, // записываем хеш в базу
     }))
     .then((user) => res.status(201).send({
       _id: user._id,
@@ -51,60 +47,37 @@ module.exports.createUser = (req, res) => {
       email: user.email,
     }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка на стороне сервера' });
+      if (err.code === 1100) {
+        next(new ConflictError('Пользователь с таким email уже существует'));
+        return;
       }
+      next(err);
     });
 };
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: 'true', runValidators: true })
-    .orFail(new Error('NotValidId'))
+    .orFail(new NotFoundError('Пользователь с указанным _id не найден'))
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.message === 'NotValidId') {
-        res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
-      } else if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка на стороне сервера' });
-      }
-    });
+    .catch(next);
 };
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const avatar = req.body;
   console.log(req);
   User.findByIdAndUpdate(req.user._id, avatar, { new: 'true', runValidators: true })
-    .orFail(new Error('NotValidId'))
+    .orFail(new NotFoundError('Пользователь с указанным _id не найден'))
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.message === 'NotValidId') {
-        res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
-      } else if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка на стороне сервера' });
-      }
-    });
+    .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      console.log(user._id);
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
         expiresIn: '7d',
       });
-      console.log({token})
       res.status(200).send({ token });
     })
-    .catch((err) => {
-      console.log(err);
-      console.log(err.message);
-      console.log(err.name);
-      res.status(401).send({ message: err.message });
-    });
+    .catch(next);
 };
