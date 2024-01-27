@@ -6,26 +6,20 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "lint": "npx eslint",
+    "lint": "npx eslint .",
     "lintfix": "npx eslint . --fix"
   },
   "author": "Roman",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^8.56.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.29.1",
     "nodemon": "^3.0.2"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "celebrate": "^15.0.3",
-    "dotenv": "^16.3.1",
-    "eslint-config-prettier": "^9.1.0",
     "express": "^4.18.2",
-    "joi": "^17.12.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.4",
     "validator": "^13.11.0"

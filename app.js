@@ -6,6 +6,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const NotFoundError = require('./errors/not-found-err')
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -29,9 +30,8 @@ app.post('/signin', celebrate({
 app.use('/users', auth, require('./routes/users'));
 app.use('/cards', auth, require('./routes/cards'));
 
-app.use(errors());
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Страница не найдена' });
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
 });
 app.use(errors());
 app.use(require('./middlewares/handle-errors'));
