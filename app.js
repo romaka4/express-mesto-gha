@@ -6,7 +6,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const NotFoundError = require('./errors/not-found-err')
+const NotFoundError = require('./errors/not-found-err');
 const { regExp } = require('./utils/regExp');
 
 app.use(bodyParser.json());
